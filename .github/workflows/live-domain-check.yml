@@ -1,0 +1,24 @@
+name: Live domain diagnostic
+on:
+  push:
+    paths:
+      - ".github/workflows/live-domain-check.yml"
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test public domain
+        shell: bash
+        run: |
+          echo "=== DNS ==="
+          dig +short CNAME tools.jmst.info
+          dig +short A tools.jmst.info
+          echo "=== HTTP ==="
+          curl -sSIL --max-time 20 http://tools.jmst.info/ | head -40 || true
+          echo "=== HTTPS x3 ==="
+          for i in 1 2 3; do
+            echo "--- request $i ---"
+            curl -sSIk --max-time 20 https://tools.jmst.info/ | head -25 || true
+          done
+          echo "=== CERTIFICATE ==="
+          echo | openssl s_client -connect tools.jmst.info:443 -servername tools.jmst.info 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName || true
