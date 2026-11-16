@@ -1,0 +1,14 @@
+{
+  "name": "JMST → VJOL Converter",
+  "short_name": "JMST VJOL",
+  "description": "Chuyển đổi, kiểm tra và đối soát issue XML từ OJS 3.3 sang OJS 3.5.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f5f8",
+  "theme_color": "#0d2d48",
+  "lang": "vi",
+  "icons": [
+    {"src": "./favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}

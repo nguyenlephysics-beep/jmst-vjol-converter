@@ -1,0 +1,8 @@
+"use strict";
+const CACHE="jmst-vjol-v4.0",CONTROL="jmst-vjol-control",ACTIVE="./active-cache",ASSETS=["./","./index.html","./styles.css","./app.js","./enhancements.js","./completion.js","./manifest.webmanifest","./favicon.svg"];
+async function selectedCache(){const control=await caches.open(CONTROL),saved=await control.match(ACTIVE);return saved?await saved.text():CACHE}
+async function selectCache(name){const control=await caches.open(CONTROL);await control.put(ACTIVE,new Response(name))}
+self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>selectCache(CACHE)).then(()=>self.skipWaiting())));
+self.addEventListener("activate",event=>event.waitUntil(self.clients.claim()));
+self.addEventListener("message",event=>{if(event.data?.type==="ROLLBACK_CACHE")event.waitUntil(caches.keys().then(async keys=>{const versions=keys.filter(k=>k.startsWith("jmst-vjol-v")&&k!==CACHE).sort().reverse();if(versions[0]){await selectCache(versions[0]);event.source?.postMessage({type:"ROLLBACK_RESULT",ok:true,cache:versions[0]})}else event.source?.postMessage({type:"ROLLBACK_RESULT",ok:false})}));if(event.data?.type==="USE_LATEST")event.waitUntil(selectCache(CACHE))});
+self.addEventListener("fetch",event=>{if(event.request.method!=="GET"||new URL(event.request.url).origin!==self.location.origin)return;event.respondWith((async()=>{const cache=await caches.open(await selectedCache()),key=event.request.mode==="navigate"?"./index.html":event.request,cached=await cache.match(key);if(cached)return cached;try{const response=await fetch(event.request);if(response.ok)cache.put(key,response.clone());return response}catch{return caches.match("./index.html")}})())});
