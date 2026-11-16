@@ -1,0 +1,22 @@
+name: DNS and HTTPS diagnostic
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/dns-check.yml"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check DNS and HTTPS
+        shell: bash
+        run: |
+          echo "=== CNAME ==="
+          dig +short CNAME tools.jmst.info
+          echo "=== A ==="
+          dig +short A tools.jmst.info
+          echo "=== HTTPS HEAD ==="
+          curl -sSIkL --max-time 20 https://tools.jmst.info/ | head -30 || true
+          echo "=== CERTIFICATE ==="
+          echo | openssl s_client -connect tools.jmst.info:443 -servername tools.jmst.info 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName || true
