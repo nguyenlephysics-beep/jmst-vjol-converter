@@ -16,6 +16,10 @@ jobs:
           dig +short CNAME tools.jmst.info
           echo "=== A ==="
           dig +short A tools.jmst.info
+          echo "=== CAA SUBDOMAIN ==="
+          dig +short CAA tools.jmst.info
+          echo "=== CAA APEX ==="
+          dig +short CAA jmst.info
           echo "=== HTTPS HEAD ==="
           curl -sSIkL --max-time 20 https://tools.jmst.info/ | head -30 || true
           echo "=== CERTIFICATE ==="
